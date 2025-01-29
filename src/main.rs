@@ -18,9 +18,10 @@ async fn main() {
     // Create the Axum app with the routes
     let app = Router::new()
         .nest("/api/ethereum", ethereum_routes(app_state.clone()));
-
+    
     let address = "0.0.0.0:3000";
     let listener = TcpListener::bind(address).await.unwrap();
     println!("Listening globally on {}", address);
     serve(listener, app).await.unwrap();
+    
 }

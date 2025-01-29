@@ -1,0 +1,6 @@
+[ethereum]
+rpc_url = "https://rpc.gnosischain.com"
+
+[contracts]
+balancer_pool = "0x1e8b447129984d8A6B652C807DfC3bd135973133"
+staking_contract = "0xF81c47609E19B1456dDC6acb730F8F5b64840429"

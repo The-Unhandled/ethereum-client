@@ -26,7 +26,8 @@ pub struct AppState {
 
 pub fn routes(state: AppState) -> Router {
     Router::new()
-        .route("/balance/{address}", get(get_balance))
+        .route("/address/{address}/balance", get(get_balance))
+        .route("/address/{address}/balancer/staked/balance", get(get_balancer_staked_balance))
         .with_state(state)
 }
 
@@ -38,6 +39,19 @@ async fn get_balance(
     let balance = state
         .ethereum_service
         .get_balance(&address)
+        .await
+        .unwrap_or_else(|_| Balance::default());
+    Json(BalanceResponse::from(balance))
+}
+
+async fn get_balancer_staked_balance(
+    Path(address): Path<String>,
+    State(state): State<AppState>,
+) -> Json<BalanceResponse> {
+    // Example usage of the EthereumService
+    let balance = state
+        .ethereum_service
+        .get_balancer_staked_balance(&address)
         .await
         .unwrap_or_else(|_| Balance::default());
     Json(BalanceResponse::from(balance))
