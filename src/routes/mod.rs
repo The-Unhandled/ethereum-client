@@ -1,4 +1,8 @@
-pub mod ethereum; // Declare the Ethereum routes module
+pub mod ethereum;
+mod aura_response;
+mod errors;
+mod balance_response;
+// Declare the Ethereum routes module
 
 use axum::Router;
 use crate::AppState;

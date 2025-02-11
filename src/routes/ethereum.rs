@@ -1,23 +1,10 @@
-use axum::{routing::get, Router, Json};
-use std::sync::Arc;
-use axum::extract::{Path, State};
-use serde::Serialize;
-use crate::Balance;
+use crate::routes::aura_response::AuraResponse;
+use crate::routes::balance_response::BalanceResponse;
+use crate::routes::errors::ApiError;
 use crate::services::ethereum::EthereumService;
-
-#[derive(Debug, Serialize)]
-pub struct BalanceResponse {
-    pub balance: String,
-}
-
-impl From<Balance> for BalanceResponse {
-    fn from(balance: Balance) -> Self {
-        // Perform the formatting of the balance here
-        BalanceResponse {
-            balance: format!("{:.2}eth", balance.to_ether()), // Format balance as string
-        }
-    }
-}
+use axum::extract::{Path, State};
+use axum::{routing::get, Json, Router};
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -26,33 +13,46 @@ pub struct AppState {
 
 pub fn routes(state: AppState) -> Router {
     Router::new()
-        .route("/address/{address}/balance", get(get_balance))
-        .route("/address/{address}/balancer/staked/balance", get(get_balancer_staked_balance))
+        .route("/address/{address}", get(get_balance))
+        .route("/balancer/{address}", get(get_balancer_staked_balance))
+        .route("/aura/{address}", get(get_aura_balance_and_earned))
         .with_state(state)
 }
 
 async fn get_balance(
     Path(address): Path<String>,
     State(state): State<AppState>,
-) -> Json<BalanceResponse> {
+) -> Result<Json<BalanceResponse>, ApiError> {
     // Example usage of the EthereumService
     let balance = state
         .ethereum_service
         .get_balance(&address)
         .await
-        .unwrap_or_else(|_| Balance::default());
-    Json(BalanceResponse::from(balance))
+        .map_err(|e| ApiError::InternalError(e.to_string()))?;
+    Ok(Json(BalanceResponse::from(balance)))
 }
 
 async fn get_balancer_staked_balance(
     Path(address): Path<String>,
     State(state): State<AppState>,
-) -> Json<BalanceResponse> {
+) -> Result<Json<BalanceResponse>, ApiError> {
     // Example usage of the EthereumService
     let balance = state
         .ethereum_service
         .get_balancer_staked_balance(&address)
         .await
-        .unwrap_or_else(|_| Balance::default());
-    Json(BalanceResponse::from(balance))
+        .map_err(|e| ApiError::InternalError(e.to_string()))?;
+    Ok(Json(BalanceResponse::from(balance)))
+}
+
+async fn get_aura_balance_and_earned(
+    Path(address): Path<String>,
+    State(state): State<AppState>,
+) -> Result<Json<AuraResponse>, ApiError> {
+    state
+        .ethereum_service
+        .get_aura_balance_and_earned(&address)
+        .await
+        .map(|(balance, earned)| Json(AuraResponse::new(balance, earned)))
+        .map_err(|e| ApiError::InternalError(e))
 }

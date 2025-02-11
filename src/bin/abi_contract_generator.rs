@@ -3,13 +3,13 @@ use std::fs;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Path to your ABI file
-    let abi_path = r"D:\Sanctuary\Dev\Repos\rust\ethereum-client\src\resources\balancer_abi.json";
+    let abi_path = r"./src/resources/contracts/aura_abi.json";
 
     // Name for the generated contract bindings
-    let contract_name = "BalancerContract";
+    let contract_name = "AuraContract";
 
     // Output path for the generated bindings
-    let output_path = "./src/contracts/balancer.rs";
+    let output_path = "./src/contracts/aura.rs";
 
     // Generate the bindings
     let bindings = Abigen::new(contract_name, abi_path)?

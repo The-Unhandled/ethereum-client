@@ -1,3 +1,4 @@
+use env_logger;
 use axum::{Router, serve};
 use std::sync::Arc;
 use tokio::net::TcpListener;
@@ -7,6 +8,9 @@ use ethereum_client::services::ethereum::EthereumService;
 
 #[tokio::main]
 async fn main() {
+    // Initialize the logger
+    env_logger::init();
+    
     // Initialize the Ethereum service
     let ethereum_service = Arc::new(EthereumService::new());
 
