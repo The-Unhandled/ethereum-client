@@ -1,12 +1,14 @@
 pub mod common;
-pub mod routes;
+pub mod http;
 pub mod services;
 pub mod repositories;
 
 pub mod contracts;
 pub mod config;
+pub mod grpc;
 
-pub use services::ethereum::EthereumService;
+pub 
+use services::ethereum::EthereumService;
 pub use repositories::ethereum::EthereumRepository;
-pub use routes::ethereum::{routes, AppState};
+pub use http::ethereum::{routes, AppState};
 pub use common::balance::Balance;

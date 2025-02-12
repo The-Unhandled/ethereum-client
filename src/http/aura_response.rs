@@ -1,6 +1,6 @@
 use serde::Serialize;
 use crate::Balance;
-use crate::routes::balance_response::BalanceResponse;
+use crate::http::balance_response::BalanceResponse;
 
 #[derive(Debug, Serialize)]
 pub struct AuraResponse {

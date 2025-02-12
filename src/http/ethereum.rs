@@ -1,6 +1,6 @@
-use crate::routes::aura_response::AuraResponse;
-use crate::routes::balance_response::BalanceResponse;
-use crate::routes::errors::ApiError;
+use crate::http::aura_response::AuraResponse;
+use crate::http::balance_response::BalanceResponse;
+use crate::http::errors::ApiError;
 use crate::services::ethereum::EthereumService;
 use axum::extract::{Path, State};
 use axum::{routing::get, Json, Router};

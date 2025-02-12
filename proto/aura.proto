@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package aura;
+
+service AuraService {
+  rpc GetAuraBalance (AuraRequest) returns (AuraResponse);
+}
+
+message AuraRequest {
+  string address = 1;
+}
+
+message AuraResponse {
+  double balance = 1;
+  double earned = 2;
+}

@@ -1,1 +1,1 @@
-pub mod ethereum; // Declare the Ethereum routes module
+pub mod ethereum; // Declare the Ethereum http module

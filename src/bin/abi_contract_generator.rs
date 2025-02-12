@@ -9,7 +9,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let contract_name = "AuraContract";
 
     // Output path for the generated bindings
-    let output_path = "./src/contracts/aura.rs";
+    let output_path = "./src/contracts/aura_service";
 
     // Generate the bindings
     let bindings = Abigen::new(contract_name, abi_path)?

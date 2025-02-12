@@ -85,10 +85,10 @@ impl EthereumRepository {
 
     pub async fn get_aura_earned(&self, user_address: &str) -> Result<Balance, ProviderError> {
         let account: Address = user_address.parse().expect("Invalid Ethereum address");
-        
-        let aura_address: Address = "0x4bdaaebd01fce060e0075bc577ed0d716c17bd32".parse().unwrap();;
+
+        let aura_address: Address = "0x4bdaaebd01fce060e0075bc577ed0d716c17bd32".parse().unwrap();
         let aura_contract = AuraContract::new(aura_address, self.client.clone());
-        
+
         info!("Calling Aura::earned for address: {}", account);
 
         let earned = aura_contract

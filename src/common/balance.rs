@@ -21,6 +21,7 @@ impl Balance {
 
 }
 
+// Implementing the From trait to convert from U256 to Balance
 impl From<U256> for Balance {
     fn from(value: U256) -> Self {
         let wei = u128::try_from(value).expect("Balance too large for u128");
