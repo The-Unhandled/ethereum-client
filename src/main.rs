@@ -5,21 +5,25 @@ use ethereum_client::http::ethereum_routes;
 use ethereum_client::services::ethereum::EthereumService;
 use ethereum_client::grpc::aura_service::{AuraServiceServer, AuraServiceImpl};
 use std::sync::Arc;
+use log::LevelFilter::Info;
 use tokio::net::TcpListener;
 use tonic::transport::Server;
 
 #[tokio::main]
 async fn main() {
     // Initialize the logger
-    env_logger::init();
+    env_logger::builder().filter_level(Info).init();
 
     // Initialize the Ethereum service (shared state)
-    let ethereum_service = Arc::new(EthereumService::new());
+    let ethereum_service = Arc::new(EthereumService::new().await);
 
     // Create application state
     let app_state = AppState {
         ethereum_service: ethereum_service.clone(),
     };
+    
+    // Start the Ethereum log listener
+    ethereum_service.start_log_listener();
 
     // Setup Axum HTTP server
     let http_address = "0.0.0.0:3000";

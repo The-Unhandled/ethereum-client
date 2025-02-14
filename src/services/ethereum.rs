@@ -6,9 +6,9 @@ pub struct EthereumService {
 }
 
 impl EthereumService {
-    pub fn new() -> Self {
+    pub async fn new() -> Self {
         Self {
-            repo: EthereumRepository::new(),
+            repo: EthereumRepository::new().await,
         }
     }
 
@@ -21,7 +21,7 @@ impl EthereumService {
         self.repo.get_balancer_staked_balance(address).await
             .map_err(|e| e.to_string())
     }
-    
+
     pub async fn get_aura_balance_and_earned(&self, address: &str) -> Result<(Balance, Balance), String> {
         let (balance_result, earned_result) = tokio::join!(
             self.repo.get_aura_balance(address),
@@ -33,5 +33,8 @@ impl EthereumService {
 
         Ok((Balance::from(balance), Balance::from(earned)))
     }
-    
+
+    pub fn start_log_listener(&self) {
+        self.repo.start_log_listener();
+    }
 }
