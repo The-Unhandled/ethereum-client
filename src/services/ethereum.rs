@@ -1,31 +1,34 @@
-use crate::repositories::ethereum::EthereumRepository;
 use crate::Balance;
+use crate::repositories::ethereum_http::EthereumHttpClient;
+use crate::repositories::ethereum_ws::EthereumWsClient;
 
 pub struct EthereumService {
-    repo: EthereumRepository,
+    http_client: EthereumHttpClient,
+    ws_client: EthereumWsClient
 }
 
 impl EthereumService {
     pub async fn new() -> Self {
         Self {
-            repo: EthereumRepository::new().await,
+            http_client: EthereumHttpClient::new(),
+            ws_client: EthereumWsClient::new().await,
         }
     }
 
     pub async fn get_balance(&self, address: &str) -> Result<Balance, String> {
-        self.repo.get_balance(address).await
+        self.http_client.get_balance(address).await
             .map_err(|e| e.to_string())
     }
 
     pub async fn get_balancer_staked_balance(&self, address: &str) -> Result<Balance, String> {
-        self.repo.get_balancer_staked_balance(address).await
+        self.http_client.get_balancer_staked_balance(address).await
             .map_err(|e| e.to_string())
     }
 
     pub async fn get_aura_balance_and_earned(&self, address: &str) -> Result<(Balance, Balance), String> {
         let (balance_result, earned_result) = tokio::join!(
-            self.repo.get_aura_balance(address),
-            self.repo.get_aura_earned(address)
+            self.http_client.get_aura_balance(address),
+            self.http_client.get_aura_earned(address)
         );
 
         let balance = balance_result.map_err(|e| e.to_string())?;
@@ -35,6 +38,6 @@ impl EthereumService {
     }
 
     pub fn start_log_listener(&self) {
-        self.repo.start_log_listener();
+        self.ws_client.start_log_listener();
     }
 }

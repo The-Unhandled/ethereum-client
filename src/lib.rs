@@ -7,8 +7,6 @@ pub mod contracts;
 pub mod config;
 pub mod grpc;
 
-pub 
-use services::ethereum::EthereumService;
-pub use repositories::ethereum::EthereumRepository;
+pub use services::ethereum::EthereumService;
 pub use http::ethereum::{routes, AppState};
 pub use common::balance::Balance;
