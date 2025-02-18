@@ -12,12 +12,22 @@ axum = "0.8.1"
 tokio = { version = "1.43.0", features = ["macros", "rt-multi-thread"] }
 tonic = "0.12.3"
 prost = "0.13.4"
+# 🚀 The dynamic-linking feature makes rdkafka use the system-installed librdkafka instead of compiling it!
+rdkafka = { version = "0.37", features = ["tokio", "dynamic-linking"] }
+config = "0.15.8"
 
 ethers = {  version = "2.0.14", features = ["abigen-offline", "ws"] }
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0"
-toml = "0.8.19"
 thiserror = "2.0.11"
+futures = "0.3.31"
+
+[dev-dependencies]
+testcontainers = "0.23"
+rdkafka = { version = "0.37.0", features = ["tokio"] }
+tokio = { version = "1.43.0", features = ["full"] }
+log = "0.4"
+ethers = {  version = "2.0.14", features = ["ws"] }
 
 [build-dependencies]
 tonic-build = "0.12.3"

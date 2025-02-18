@@ -1,5 +1,5 @@
+use config::{Config, File};
 use serde::Deserialize;
-use std::fs;
 
 #[derive(Debug, Deserialize)]
 pub struct EthereumConfig {
@@ -13,15 +13,24 @@ pub struct ContractsConfig {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct KafkaConfig {
+    pub brokers: String,
+    pub topic: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct AppConfig {
     pub ethereum: EthereumConfig,
     pub contracts: ContractsConfig,
+    pub kafka: KafkaConfig,
 }
 
 impl AppConfig {
-    pub fn load() -> Result<Self, Box<dyn std::error::Error>> {
-        let config_str = fs::read_to_string("config.toml")?;
-        let config: AppConfig = toml::from_str(&config_str)?;
-        Ok(config)
+    pub fn load() -> Result<Self, config::ConfigError> {
+        let cfg = Config::builder()
+            .add_source(File::with_name("config"))
+            .build()?;
+
+        cfg.try_deserialize()
     }
 }
