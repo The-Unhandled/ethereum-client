@@ -12,7 +12,9 @@ use tonic::transport::Server;
 #[tokio::main]
 async fn main() {
     // Initialize the logger
-    env_logger::builder().filter_level(Info).init();
+    env_logger::builder().filter_level(Info)
+        .filter_module("ethers_providers::rpc::transports::ws::manager", log::LevelFilter::Warn) // ✅ Reduce spam
+        .init();
 
     // Initialize the Ethereum service (shared state)
     let ethereum_service = Arc::new(EthereumService::new().await);
