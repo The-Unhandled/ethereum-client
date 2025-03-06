@@ -8,6 +8,8 @@ use std::sync::Arc;
 use log::LevelFilter::Info;
 use tokio::net::TcpListener;
 use tonic::transport::Server;
+use ethereum_client::grpc::chainlink_service::ChainlinkServiceImpl;
+use ethereum_client::grpc::ChainlinkServiceServer;
 
 #[tokio::main]
 async fn main() {
@@ -25,7 +27,7 @@ async fn main() {
     };
     
     // Start the Ethereum log listener
-    ethereum_service.start_log_listener();
+    //ethereum_service.start_log_listener();
 
     // Setup Axum HTTP server
     let http_address = "0.0.0.0:3000";
@@ -37,8 +39,9 @@ async fn main() {
 
     // Setup Tonic gRPC server
     let grpc_address = "0.0.0.0:50051".parse().unwrap();
-    let grpc_service = AuraServiceServer::new(AuraServiceImpl::new(ethereum_service.clone()));
-    
+    let grpc_aura_service = AuraServiceServer::new(AuraServiceImpl::new(ethereum_service.clone()));
+    let grpc_chainlink_service = ChainlinkServiceServer::new(ChainlinkServiceImpl::new(ethereum_service.clone()));
+
     println!("gRPC server listening on {}", grpc_address);
 
     // Run both servers concurrently
@@ -47,7 +50,8 @@ async fn main() {
             println!("HTTP server exited");
         }
         _ = Server::builder()
-            .add_service(grpc_service)
+            .add_service(grpc_aura_service)
+            .add_service(grpc_chainlink_service)
             .serve(grpc_address) => {
             println!("gRPC server exited");
         }

@@ -3,6 +3,7 @@ mod tests {
     use ethereum_client::repositories::ethereum_http::EthereumHttpClient;
     use ethers::providers::{Http, Provider};
     use std::sync::Arc;
+    use ethers::addressbook::Address;
 
     #[tokio::test]
     async fn test_get_chainlink_price() {
@@ -14,8 +15,9 @@ mod tests {
 
         // Create our client with the test provider.
         let client = EthereumHttpClient::new_with_provider(provider);
+        let address: Address = "0x22441d81416430A54336aB28765abd31a792Ad37".parse().unwrap();
 
-        let price_result = client.get_chainlink_price().await;
+        let price_result = client.get_chainlink_price(address).await;
 
         match price_result {
             Ok(price) => {

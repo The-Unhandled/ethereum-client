@@ -119,13 +119,9 @@ impl EthereumHttpClient {
 
     /// Fetches the latest price from a Chainlink aggregator contract using latestRoundData.
     /// Returns the answer as an I256.
-    pub async fn get_chainlink_price(&self) -> Result<Price, ProviderError> {
+    pub async fn get_chainlink_price(&self, aggregator_address: Address) -> Result<Price, ProviderError> {
 
-        // GNO - USD Chainlink aggregator address
-        let address: Address = "0x22441d81416430A54336aB28765abd31a792Ad37"
-            .parse()
-            .expect("Invalid aggregator address");
-        let aggregator = ChainlinkAggregator::new(address, self.provider.clone());
+        let aggregator = ChainlinkAggregator::new(aggregator_address, self.provider.clone());
         let (_round_id, answer, _started_at, _updated_at, _answered_in_round) =
             aggregator.latest_round_data().call().await.unwrap();
 

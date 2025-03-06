@@ -1,4 +1,6 @@
+use ethers::types::Address;
 use crate::Balance;
+use crate::common::price::Price;
 use crate::repositories::ethereum_http::EthereumHttpClient;
 use crate::repositories::ethereum_ws::EthereumWsClient;
 
@@ -35,6 +37,11 @@ impl EthereumService {
         let earned = earned_result.map_err(|e| e.to_string())?;
 
         Ok((Balance::from(balance), Balance::from(earned)))
+    }
+    
+    pub async fn get_chainlink_price(&self, aggregator_address: Address) -> Result<Price, String> {
+        self.http_client.get_chainlink_price(aggregator_address).await
+            .map_err(|e| e.to_string())
     }
 
     pub fn start_log_listener(&self) {
