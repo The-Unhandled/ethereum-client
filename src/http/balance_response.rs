@@ -6,11 +6,16 @@ pub struct BalanceResponse {
     pub balance: String,
 }
 
+impl From<&Balance> for BalanceResponse {
+    fn from(balance: &Balance) -> Self {
+        BalanceResponse {
+            balance: format!("{:.2}eth", balance.to_ether()),
+        }
+    }
+}
+
 impl From<Balance> for BalanceResponse {
     fn from(balance: Balance) -> Self {
-        // Perform the formatting of the balance here
-        BalanceResponse {
-            balance: format!("{:.2}eth", balance.to_ether()), // Format balance as string
-        }
+        Self::from(&balance)
     }
 }

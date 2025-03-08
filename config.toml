@@ -2,8 +2,8 @@
 rpc_url = "https://rpc.gnosischain.com"
 
 [contracts]
-balancer_pool = "0x1e8b447129984d8A6B652C807DfC3bd135973133"
-staking_contract = "0xF81c47609E19B1456dDC6acb730F8F5b64840429"
+balancer_pool = "0x1acd5c5e69dc056649d698046486fb54545ce7e4"
+gauge_addr = "0xbcF4969d4dc6Cb86Ce0B8a101d220b558F14739C"
 
 [kafka]
 brokers = "localhost:9094"

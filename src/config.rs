@@ -9,7 +9,7 @@ pub struct EthereumConfig {
 #[derive(Debug, Deserialize)]
 pub struct ContractsConfig {
     pub balancer_pool: String,
-    pub staking_contract: String,
+    pub gauge_addr: String,
 }
 
 #[derive(Debug, Deserialize)]

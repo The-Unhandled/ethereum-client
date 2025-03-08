@@ -1,6 +1,5 @@
 use crate::config::AppConfig;
 use crate::contracts::aura::AuraContract;
-use crate::contracts::balancer::BalancerContract;
 use crate::Balance;
 use ethers::prelude::*;
 use log::info;
@@ -10,7 +9,7 @@ use crate::common::price::Price;
 #[derive(Debug)]
 pub struct EthereumHttpClient {
     provider: Arc<Provider<Http>>,
-    staking_address: Address,
+    gauge_addr: Address,
 }
 
 // Generate bindings for the Chainlink aggregator using latestRoundData
@@ -18,6 +17,11 @@ abigen!(
     ChainlinkAggregator,
     r#"./src/resources/contracts/chainlink_aggregator_abi.json"#
 );
+abigen!(
+    BalancerGauge,
+    r#"./src/resources/contracts/balancer_gauge_abi.json"#
+);
+
 
 impl EthereumHttpClient {
     pub fn new() -> Self {
@@ -30,9 +34,9 @@ impl EthereumHttpClient {
 
         Self {
             provider,
-            staking_address: config
+            gauge_addr: config
                 .contracts
-                .staking_contract
+                .gauge_addr
                 .parse()
                 .expect("Invalid address"),
         }
@@ -43,9 +47,9 @@ impl EthereumHttpClient {
         let config = AppConfig::load().expect("Failed to load config");
         Self {
             provider,
-            staking_address: config
+            gauge_addr: config
                 .contracts
-                .staking_contract
+                .gauge_addr
                 .parse()
                 .expect("Invalid address"),
         }
@@ -66,7 +70,7 @@ impl EthereumHttpClient {
     ) -> Result<Balance, ProviderError> {
         let account: Address = user_address.parse().expect("Invalid Ethereum address");
 
-        let staking_contract = BalancerContract::new(self.staking_address, self.provider.clone());
+        let staking_contract = BalancerGauge::new(self.gauge_addr, self.provider.clone());
 
         info!("Calling Balancer::get_balance for address: {}", account);
 
@@ -78,6 +82,35 @@ impl EthereumHttpClient {
 
         Ok(Balance::from(staked_balance))
     }
+
+    pub async fn get_balancer_rewards(
+        &self,
+        user_address: &str,
+    ) -> Result<Vec<Balance>, ProviderError> {
+        let account: Address = user_address.parse().expect("Invalid Ethereum address");
+
+        let gauge_contract = BalancerGauge::new(self.gauge_addr, self.provider.clone());
+
+        info!("Calling Balancer::claimable_reward gauge: {} for user: {}", self.gauge_addr, account);
+
+        // GNO token address on Gnosis Chain
+        let gno_address: Address = "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb"
+            .parse()
+            .expect("Invalid GNO address");
+
+        // Get claimable GNO rewards
+        let claimable_gno = gauge_contract
+            .claimable_reward(account, gno_address)
+            .call()
+            .await
+            .map_err(|e| ProviderError::CustomError(e.to_string()))?;
+
+        let mut rewards = Vec::new();
+        rewards.push(Balance::from(claimable_gno));
+
+        Ok(rewards)
+    }
+
 
     pub async fn get_aura_balance(&self, user_address: &str) -> Result<Balance, ProviderError> {
         let account: Address = user_address.parse().expect("Invalid Ethereum address");
