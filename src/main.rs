@@ -28,6 +28,7 @@ async fn main() {
     
     // Start the Ethereum log listener
     //ethereum_service.start_log_listener();
+    ethereum_service.start_event_listener();
 
     // Setup Axum HTTP server
     let http_address = "0.0.0.0:3000";

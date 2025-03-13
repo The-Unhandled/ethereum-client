@@ -15,6 +15,11 @@ pub struct EthereumWsClient {
     kafka_topic: String
 }
 
+abigen!(
+    BalancerGauge,
+    r#"./src/resources/contracts/balancer_gauge_abi.json"#
+);
+
 impl EthereumWsClient {
     pub async fn new() -> Self {
 
@@ -38,6 +43,52 @@ impl EthereumWsClient {
         info!("📡 WS Provider connected & Kafka producer ready");
 
         Self { provider, kafka_producer, kafka_topic: config.kafka.topic.clone() }
+    }
+
+    pub fn start_event_listener(&self) {
+
+        let gauge_address: Address = "0xbcF4969d4dc6Cb86Ce0B8a101d220b558F14739C"
+            .parse()
+            .expect("Invalid Balancer Gauge address");
+
+        let contract = BalancerGauge::new(gauge_address, self.provider.clone());
+
+        let test_block = BlockNumber::Number(U64::from(39001900));
+
+        let watcher = contract.events().from_block(test_block);
+
+        task::spawn(async move {
+            match watcher.subscribe().await {
+                Ok(mut stream) => {
+                    info!("📡 Listening for Balancer Gauge events...");
+                    while let Some(result) = stream.next().await {
+                        match result {
+                            Ok(event) => {
+                                match event {
+                                    BalancerGaugeEvents::DepositFilter(deposit) => {
+                                        info!("🔹 New deposit: {:?}", deposit);
+                                        //handle_event("DEPOSIT", &deposit.user, &deposit.value, &meta, &producer, &topic).await;
+                                    }
+                                    BalancerGaugeEvents::WithdrawFilter(withdraw) => {
+                                        info!("🔹 New withdraw: {:?}", withdraw);
+                                        //handle_event("WITHDRAW", &withdraw.user, &withdraw.value, &meta, &producer, &topic).await;
+                                    }
+                                    _ => {} // Ignore other events
+                                }
+                            }
+                            Err(e) => {
+                                error!("❌ Error processing event: {:?}", e);
+                            }
+                        }
+                    }
+                    error!("❌ Event stream closed.");
+                }
+                Err(e) => {
+                    error!("❌ Failed to subscribe to events: {:?}", e);
+                }
+            }
+        });
+
     }
 
     pub fn start_log_listener(&self) {

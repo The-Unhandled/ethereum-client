@@ -45,12 +45,16 @@ impl EthereumService {
     }
     
     // Call http_client get_balancer_rewards
-    pub async fn get_balancer_rewards(&self, address: &str) -> Result<Vec<(Balance)>, String> {
+    pub async fn get_balancer_rewards(&self, address: &str) -> Result<Vec<Balance>, String> {
         self.http_client.get_balancer_rewards(address).await
             .map_err(|e| e.to_string())
     }
 
     pub fn start_log_listener(&self) {
         self.ws_client.start_log_listener();
+    }
+    
+    pub fn start_event_listener(&self) {
+        self.ws_client.start_event_listener();
     }
 }
